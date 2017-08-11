@@ -22,6 +22,29 @@ sigma = 0.3;
 %  Note: You can compute the prediction error using 
 %        mean(double(predictions ~= yval))
 %
+C_values = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
+sigma_values = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
+
+predMatrix = [];
+
+
+for i = 1:size(C_values,2)
+    for j = 1:size(sigma_values,2)
+        % Train the SVM using X,y
+        model= svmTrain(X, y, C_values(i), @(x1, x2) gaussianKernel(x1, x2, sigma_values(j)));
+        
+        %Predict SVM for Xval and compare with yval for mismatches
+        pred = svmPredict(model, Xval);
+        
+        %add the entries to matric
+        predMatrix = [ predMatrix; C_values(i), sigma_values(j), mean(double(pred ~= yval)) ];
+    end
+   
+%Find the index of mimimum value of predition errors    
+[~,index] = min(predMatrix(:,3));
+C = predMatrix(index,1);
+sigma = predMatrix(index,2);
+end
 
 
 
